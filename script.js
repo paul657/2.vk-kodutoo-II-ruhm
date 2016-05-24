@@ -1,366 +1,390 @@
 (function(){
    "use strict";
-
-   var Moosipurk = function(){
-
+   var Nimekiri = function(){
      // SEE ON SINGLETON PATTERN
-     if(Moosipurk.instance){
-       return Moosipurk.instance;
+     if(Nimekiri.instance){
+       return Nimekiri.instance;
      }
-     //this viitab Moosipurk fn
-     Moosipurk.instance = this;
-
-     this.routes = Moosipurk.routes;
-     // this.routes['home-view'].render()
-
-     console.log('moosipurgi sees');
-
-     // KÄ†ā€¢IK muuutujad, mida muudetakse ja on rakendusega seotud defineeritakse siin
-     this.click_count = 0;
+     //this viitab Nimekiri fn
+     Nimekiri.instance = this;
+     this.routes = Nimekiri.routes;
+     console.log('Nimekirja sees');
+     // KÕIK muuutujad, mida muudetakse ja on rakendusega seotud defineeritakse siin
      this.currentRoute = null;
-     console.log(this);
-
-     // hakkan hoidma kÄ†Āµiki purke
-     this.jars = [];
-
-     // Kui tahan Moosipurgile referenci siis kasutan THIS = MOOSIPURGI RAKENDUS ISE
+     // hakkan hoidma kõiki purke
+     this.products = [];
+     // Kui tahan Nimekirjale referenci siis kasutan THIS = Nimekirja RAKENDUS ISE
      this.init();
    };
-
-   window.Moosipurk = Moosipurk; // Paneme muuutja kÄ†Ā¼lge
-
-   Moosipurk.routes = {
+   window.Nimekiri = Nimekiri; // Paneme muuutja külge
+   Nimekiri.routes = {
      'home-view': {
        'render': function(){
-         // kÄ†Ā¤ivitame siis kui lehte laeme
+         // käivitame siis kui lehte laeme
          console.log('>>>>avaleht');
-       }
-     },
-     'list-view': {
-       'render': function(){
-         // kÄ†Ā¤ivitame siis kui lehte laeme
-         console.log('>>>>loend');
-
          //simulatsioon laeb kaua
          window.setTimeout(function(){
            document.querySelector('.loading').innerHTML = 'laetud!';
          }, 3000);
-
        }
      },
      'manage-view': {
        'render': function(){
-         // kÄ†Ā¤ivitame siis kui lehte laeme
+         // käivitame siis kui lehte laeme
+         console.log('>>>>lisamine');
        }
      }
    };
+   // Kõik funktsioonid lähevad Nimekirja külge
+   Nimekiri.prototype = {
 
-   // KÄ†Āµik funktsioonid lÄ†Ā¤hevad Moosipurgi kÄ†Ā¼lge
-   Moosipurk.prototype = {
+//////////////////INIT STARTS////////////////////////
 
      init: function(){
-       console.log('Rakendus lÄ†Ā¤ks tÄ†Ā¶Ä†Ā¶le');
-
+       console.log('Rakendus läks tööle');
        //kuulan aadressirea vahetust
        window.addEventListener('hashchange', this.routeChange.bind(this));
-
        // kui aadressireal ei ole hashi siis lisan juurde
        if(!window.location.hash){
          window.location.hash = 'home-view';
-         // routechange siin ei ole vaja sest kÄ†Ā¤sitsi muutmine kÄ†Ā¤ivitab routechange event'i ikka
+         // routechange siin ei ole vaja sest käsitsi muutmine käivitab routechange event'i ikka
        }else{
-         //esimesel kÄ†Ā¤ivitamisel vaatame urli Ä†Ā¼le ja uuendame menÄ†Ā¼Ä†Ā¼d
+         //esimesel käivitamisel vaatame urli üle ja uuendame menüüd
          this.routeChange();
        }
-
-       //saan kÄ†Ā¤tte purgid localStorage kui on
-       if(localStorage.jars){
-           //vÄ†Āµtan stringi ja teen tagasi objektideks
-           this.jars = JSON.parse(localStorage.jars);
-           console.log('laadisin localStorageist massiiivi ' + this.jars.length);
-
+       //saan kätte purgid localStorage kui on
+       if(localStorage.products){
+           //võtan stringi ja teen tagasi objektideks
+           this.products = JSON.parse(localStorage.products);
+           console.log('laadisin localStorageist massiivi ' + this.products.length + ' toodet');
            //tekitan loendi htmli
-           this.jars.forEach(function(jar){
-
-               var new_jar = new Jar(jar.id, jar.title, jar.ingredients);
-
-               var li = new_jar.createHtmlElement();
-               document.querySelector('.list-of-jars').appendChild(li);
-
+           this.products.forEach(function(product){
+               var new_product = new Product(product.id, product.title, product.ingredients);
+               var li = new_product.createHtmlElement();
+               document.querySelector('.list-of-products').appendChild(li);
            });
-
        }else{
+		   //küsin AJAXIGA
+       console.log("Localstorage tühi, laeme näidistooted");
 
-		   //kÄ†Ā¼sin AJAXIGA
 			var xhttp = new XMLHttpRequest();
 			xhttp.onreadystatechange = function() {
 				if (xhttp.readyState == 4 && xhttp.status == 200) {
-
-					console.log(xhttp.responseText);
+					//console.log(xhttp.responseText);
 					//tekst -> objekktideks
-					Moosipurk.instance.jars = JSON.parse(xhttp.responseText);
-					console.log(Moosipurk.instance.jars);
-
-					//teen purgid htmli
-					Moosipurk.instance.jars.forEach(function(jar){
-
-					   var new_jar = new Jar(jar.id, jar.title, jar.ingredients);
-
-					   var li = new_jar.createHtmlElement();
-					   document.querySelector('.list-of-jars').appendChild(li);
-
+					Nimekiri.instance.products = JSON.parse(xhttp.responseText);
+					//console.log(Nimekiri.instance.products);
+					//teen tooted htmli
+					Nimekiri.instance.products.forEach(function(product){
+					   var new_product = new Product(product.id, product.title, product.ingredients);
+					   var li = new_product.createHtmlElement();
+					   document.querySelector('.list-of-products').appendChild(li);
 				   });
-
 				   //salvestan localStoragisse
-				   localStorage.setItem('jars', JSON.stringify(Moosipurk.instance.jars));
-
-
+				   localStorage.setItem('products', JSON.stringify(Nimekiri.instance.products));
 				}
 			};
 			xhttp.open("GET", "save.php", true);
 			xhttp.send();
-
-
 	   }
-
-
        // esimene loogika oleks see, et kuulame hiireklikki nupul
        this.bindEvents();
-
      },
+
+//////////////////INIT ENDS////////////////////////
+
+//////////////////EVENTS STARTS////////////////////////
 
      bindEvents: function(){
-       document.querySelector('.add-new-jar').addEventListener('click', this.addNewClick.bind(this));
-
-       //kuulan trÄ†Ā¼kkimist otsikastis
+       document.querySelector('.add-new-product').addEventListener('click', this.addNewClick.bind(this));
+       //kuulan trükkimist otsikastis
        document.querySelector('#search').addEventListener('keyup', this.search.bind(this));
-
      },
-	 deleteJar: function(event){
 
+//////////////////EVENTS ENDS////////////////////////
+
+//////////////////DELETE STARTS////////////////////////
+
+	 deleteProduct: function(event){
 		// millele vajutasin SPAN
-		console.log(event.target);
-
+		//console.log(event.target);
 		// tema parent ehk mille sees ta on LI
-		console.log(event.target.parentNode);
-
+		//console.log(event.target.parentNode);
 		//mille sees see on UL
-		console.log(event.target.parentNode.parentNode);
-
+		//console.log(event.target.parentNode.parentNode);
 		//id
-		console.log(event.target.dataset.id);
-
+		//console.log(event.target.dataset.id);
 		var c = confirm("Oled kindel?");
-
 		// vajutas no, pani ristist kinni
 		if(!c){	return; }
-
 		//KUSTUTAN
 		console.log('kustutan');
-
 		// KUSTUTAN HTMLI
 		var ul = event.target.parentNode.parentNode;
 		var li = event.target.parentNode;
-
 		ul.removeChild(li);
-
 		//KUSTUTAN OBJEKTI ja uuenda localStoragit
-
 		var delete_id = event.target.dataset.id;
-
-		for(var i = 0; i < this.jars.length; i++){
-
-			if(this.jars[i].id == delete_id){
+		for(var i = 0; i < this.products.length; i++){
+			if(this.products[i].id == delete_id){
         var php_delete = delete_id;
 				//see on see
-				//kustuta kohal i objekt Ä†Ā¤ra
-				this.jars.splice(i, 1);
+				//kustuta kohal i objekt ära
+				this.products.splice(i, 1);
 				break;
 			}
 		}
-
-		localStorage.setItem('jars', JSON.stringify(this.jars));
-
-    //AJAX
-		var xhttp = new XMLHttpRequest();
-		//mis juhtub kui pÄ†Ā¤ring lÄ†Āµppeb
-		xhttp.onreadystatechange = function() {
-			console.log(xhttp.readyState);
-			if (xhttp.readyState == 4 && xhttp.status == 200) {
-				console.log(xhttp.responseText);
-			}
-		};
-		xhttp.open("GET", "save.php?id="+id+"&title="+title+"&ingredients="+ingredients, true);
-		xhttp.send();
-
-
+		localStorage.setItem('products', JSON.stringify(this.products));
 	 },
-     search: function(event){
-         //otsikasti vÄ†Ā¤Ä†Ā¤rtus
-         var needle = document.querySelector('#search').value.toLowerCase();
-         console.log(needle);
 
-         var list = document.querySelectorAll('ul.list-of-jars li');
-         console.log(list);
+//////////////////DELETE ENDS////////////////////////
 
-         for(var i = 0; i < list.length; i++){
+//////////////////CHANGE STARTS/////////////////////
 
-             var li = list[i];
+  changeProduct: function(event){
+    console.log("change");
+    var li = event.target.parentNode;
+    var content = event.target.previousSibling.previousSibling.innerHTML;
+    var n = content.indexOf(" |");
+    var product = content.substring(0, n);
+    var comment = content.substring(n + 3);
+    li.removeChild(event.target.previousSibling);
+    li.removeChild(event.target.previousSibling);
+    li.removeChild(event.target);
+    var prod_input = document.createElement('input');
+    var comm_input = document.createElement('input');
+    prod_input.setAttribute("type", "text");
+    prod_input.setAttribute("value", product);
+    comm_input.setAttribute("type", "text");
+    comm_input.setAttribute("value", comment);
+    li.appendChild(prod_input);
+    li.appendChild(comm_input);
+    /////Change nupp
+  	   var span_ready = document.createElement('span');
+  	   span_ready.style.color = "green";
+  	   span_ready.style.cursor = "pointer";
+  	   span_ready.innerHTML = " READY";
+  	   li.appendChild(span_ready);
+  	   //keegi vajutas nuppu
+  	   span_ready.addEventListener("click", this.updateData.bind(this));
+  },
 
-             // Ä†Ā¼he listitemi sisu tekst
-             var stack = li.querySelector('.content').innerHTML.toLowerCase();
+  updateData: function(event){
+    console.log('update');
+    var li = event.target.parentNode;
+    var product_input_value = event.target.previousSibling.previousSibling.value;
+    var comm_input_value = event.target.previousSibling.value;
+    var content = document.createTextNode(product_input_value + ' | ' + comm_input_value);
+    li.removeChild(event.target.previousSibling);
+    li.removeChild(event.target.previousSibling);
+    var id = event.target.previousSibling.id;
+    li.removeChild(event.target.previousSibling);
+    li.removeChild(event.target);
+//////NEW LETTER span
+      var span = document.createElement('span');
+      span.className = 'letter';
+      span.id = id;
+      span.style.cursor = "pointer";
+      span.addEventListener("click", Nimekiri.instance.markProduct.bind(Nimekiri.instance));
+      var letter = document.createTextNode(product_input_value.charAt(0));
+      span.appendChild(letter);
+      li.appendChild(span);
+////////NEW CONTENT SPAN
+      var new_span = document.createElement('span');
+      new_span.className = 'content';
+      new_span.appendChild(content);
+      li.appendChild(new_span);
+///////localstorage update
+    for(var i = 0; i < this.products.length; i++){
+     if(this.products[i].id == id){
+        this.products[i].title = product_input_value;
+        this.products[i].ingredients = comm_input_value;
+        break;
+     }
+    }
+     localStorage.setItem('products', JSON.stringify(this.products));
+/////DELETE nupp
+  	   var span_delete = document.createElement('span');
+  	   span_delete.style.color = "red";
+  	   span_delete.style.cursor = "pointer";
+  	   //kustutamiseks panen id kaasa
+  	   span_delete.setAttribute("data-id", id);
+  	   span_delete.innerHTML = " X";
+  	   li.appendChild(span_delete);
+  	   //keegi vajutas nuppu
+  	   span_delete.addEventListener("click", Nimekiri.instance.deleteProduct.bind(Nimekiri.instance));
+/////CHANGE nupp
+  	   var span_change = document.createElement('span');
+  	   span_change.style.color = "green";
+  	   span_change.style.cursor = "pointer";
+  	   //kustutamiseks panen id kaasa
+  	   span_change.setAttribute("data-id", id);
+  	   span_change.innerHTML = " EDIT";
+  	   li.appendChild(span_change);
+  	   //keegi vajutas nuppu
+  	   span_change.addEventListener("click", Nimekiri.instance.changeProduct.bind(Nimekiri.instance));
+         return li;
+  },
 
-             //kas otsisÄ†Āµna on sisus olemas
-             if(stack.indexOf(needle) !== -1){
-                 //olemas
-                 li.style.display = 'list-item';
+//////////////////CHANGE ENDS///////////////////////
 
-             }else{
-                 //ei ole, index on -1, peidan
-                 li.style.display = 'none';
+//////////////////MARK STARTS///////////////////////
 
-             }
+markProduct: function(event){
+  console.log("mark");
+  var span = event.target;
+  //var li = event.target.parentNode;
+  var next_span = event.target.nextSibling;
+  var del = document.createElement('DEL');
+  if (span.hasAttribute("clicked")){
+    span.style.color = 'rgb(146, 168, 209)';
+    next_span.style.textDecoration = "none";
+    next_span.style.color = "black";
+    span.style.border = "1px solid rgb(146, 168, 209)";
+    span.removeAttribute("clicked");
+  }else{
+    span.setAttribute("clicked", "true");
+    span.style.color = 'lightgray';
+    next_span.style.textDecoration = "line-through";
+    next_span.style.color = "lightgray";
+    span.style.border = "1px solid lightgray";
+  }
+},
 
-         }
+//////////////////MARK ENDS///////////////////////
+
+//////////////////SEARCH STARTS////////////////////////
+
+    search: function(event){
+       //otsikasti väärtus
+       var needle = document.querySelector('#search').value.toLowerCase();
+       console.log(needle);
+       var list = document.querySelectorAll('ul.list-of-products li');
+       console.log(list);
+       for(var i = 0; i < list.length; i++){
+           var li = list[i];
+           // ühe listitemi sisu tekst
+           var stack = li.querySelector('.content').innerHTML.toLowerCase();
+           //kas otsisõna on sisus olemas
+           if(stack.indexOf(needle) !== -1){
+             //olemas
+             li.style.display = 'list-item';
+           }else{
+             //ei ole, index on -1, peidan
+             li.style.display = 'none';
+           }
+       }
      },
+
+//////////////////SEARCH ENDS////////////////////////
+
+//////////////////SAVE STARTS////////////////////////
 
      addNewClick: function(event){
        //salvestame purgi
-       //console.log(event);
-
        var title = document.querySelector('.title').value;
        var ingredients = document.querySelector('.ingredients').value;
-
-       //console.log(title + ' ' + ingredients);
-       //1) tekitan uue Jar'i
-	   var id = guid();
-       var new_jar = new Jar(id, title, ingredients);
-
+       //1) tekitan uue product'i
+	     var id = guid();
+       var new_product = new Product(id, title, ingredients);
        //lisan massiiivi purgi
-       this.jars.push(new_jar);
-       console.log(JSON.stringify(this.jars));
+       this.products.push(new_product);
+       console.log(JSON.stringify(this.products));
        // JSON'i stringina salvestan localStorage'isse
-       localStorage.setItem('jars', JSON.stringify(this.jars));
-
-
-		//AJAX
-		var xhttp = new XMLHttpRequest();
-
-		//mis juhtub kui pÄ†Ā¤ring lÄ†Āµppeb
-		xhttp.onreadystatechange = function() {
-
-			console.log(xhttp.readyState);
-
-			if (xhttp.readyState == 4 && xhttp.status == 200) {
-
-				console.log(xhttp.responseText);
-			}
-		};
-
-		//teeb pÄ†Ā¤ringu
-		xhttp.open("GET", "save.php?id="+id+"&title="+title+"&ingredients="+ingredients, true);
-		xhttp.send();
-
-
+       localStorage.setItem('products', JSON.stringify(this.products));
+	     //AJAX
+       /*
+		   var xhttp = new XMLHttpRequest();
+		   //mis juhtub kui päring lõppeb
+		   xhttp.onreadystatechange = function() {
+			    console.log(xhttp.readyState);
+			       	if (xhttp.readyState == 4 && xhttp.status == 200) {
+			             console.log(xhttp.responseText);
+			        }
+		   };
+	     //teeb päringu
+		   xhttp.open("GET", "save.php?id="+id+"&title="+title+"&ingredients="+ingredients, true);
+		   xhttp.send();
+       */
        // 2) lisan selle htmli listi juurde
-       var li = new_jar.createHtmlElement();
-       document.querySelector('.list-of-jars').appendChild(li);
-
-
+       var li = new_product.createHtmlElement();
+       document.querySelector('.list-of-products').appendChild(li);
      },
 
-     routeChange: function(event){
+//////////////////SAVE ENDS////////////////////////
 
-       //kirjutan muuutujasse lehe nime, vÄ†Āµtan maha #
+//////////////////MENU STARTS////////////////////////
+
+     routeChange: function(event){
+       //kirjutan muuutujasse lehe nime, võtan maha #
        this.currentRoute = location.hash.slice(1);
        console.log(this.currentRoute);
-
        //kas meil on selline leht olemas?
        if(this.routes[this.currentRoute]){
-
-         //muudan menÄ†Ā¼Ä†Ā¼ lingi aktiivseks
+         //muudan menüü lingi aktiivseks
          this.updateMenu();
-
          this.routes[this.currentRoute].render();
-
-
        }else{
          /// 404 - ei olnud
        }
-
-
      },
 
      updateMenu: function() {
        //http://stackoverflow.com/questions/195951/change-an-elements-class-with-javascript
-       //1) vÄ†Āµtan maha aktiivse menÄ†Ā¼Ä†Ā¼lingi kui on
+       //1) võtan maha aktiivse menüülingi kui on
        document.querySelector('.active-menu').className = document.querySelector('.active-menu').className.replace('active-menu', '');
-
        //2) lisan uuele juurde
-       //console.log(location.hash);
        document.querySelector('.'+this.currentRoute).className += ' active-menu';
-
      }
 
-   }; // MOOSIPURGI LÄ†ā€¢PP
+//////////////////MENU ENDS////////////////////////
 
-   var Jar = function(new_id, new_title, new_ingredients){
-	 this.id = new_id;
-     this.title = new_title;
-     this.ingredients = new_ingredients;
-     console.log('created new jar');
+   }; // Nimekirja LÕPP
+   var Product = function(new_id, new_title, new_ingredients){
+	    this.id = new_id;
+      this.title = new_title;
+      this.ingredients = new_ingredients;
+      console.log('created new product');
    };
-
-   Jar.prototype = {
+   Product.prototype = {
      createHtmlElement: function(){
-
-       // vÄ†Āµttes title ja ingredients ->
-       /*
-       li
-        span.letter
-          M <- title esimene tÄ†Ā¤ht
-        span.content
-          title | ingredients
-       */
-
        var li = document.createElement('li');
-
        var span = document.createElement('span');
        span.className = 'letter';
-
+       span.id = this.id;
+       span.style.cursor = "pointer";
+       span.addEventListener("click", Nimekiri.instance.markProduct.bind(Nimekiri.instance));
        var letter = document.createTextNode(this.title.charAt(0));
        span.appendChild(letter);
-
        li.appendChild(span);
-
        var span_with_content = document.createElement('span');
        span_with_content.className = 'content';
-
        var content = document.createTextNode(this.title + ' | ' + this.ingredients);
        span_with_content.appendChild(content);
-
        li.appendChild(span_with_content);
-
-	   //DELETE nupp
+	/////DELETE nupp
 	   var span_delete = document.createElement('span');
 	   span_delete.style.color = "red";
 	   span_delete.style.cursor = "pointer";
-
 	   //kustutamiseks panen id kaasa
 	   span_delete.setAttribute("data-id", this.id);
-
-	   span_delete.innerHTML = " Delete";
-
+	   span_delete.innerHTML = " X";
 	   li.appendChild(span_delete);
-
 	   //keegi vajutas nuppu
-	   span_delete.addEventListener("click", Moosipurk.instance.deleteJar.bind(Moosipurk.instance));
-
+	   span_delete.addEventListener("click", Nimekiri.instance.deleteProduct.bind(Nimekiri.instance));
+/////CHANGE nupp
+	   var span_change = document.createElement('span');
+	   span_change.style.color = "green";
+	   span_change.style.cursor = "pointer";
+	   //kustutamiseks panen id kaasa
+	   span_change.setAttribute("data-id", this.id);
+	   span_change.innerHTML = " EDIT";
+	   li.appendChild(span_change);
+	   //keegi vajutas nuppu
+	   span_change.addEventListener("click", Nimekiri.instance.changeProduct.bind(Nimekiri.instance));
        return li;
-
      }
    };
-
    //HELPER
    function guid(){
 		var d = new Date().getTime();
@@ -374,10 +398,8 @@
 		});
 		return uuid;
 	}
-
-   // kui leht laetud kÄ†Ā¤ivitan Moosipurgi rakenduse
+   // kui leht laetud käivitan Nimekirja rakenduse
    window.onload = function(){
-     var app = new Moosipurk();
+     var app = new Nimekiri();
    };
-
 })();
